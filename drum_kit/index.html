@@ -56,15 +56,17 @@
     <audio data-key="76" src="assets/sounds/tink.wav"></audio>
 
     <script>
-      const drum_kit_elems = document.querySelectorAll(".key > kbd");
+      const drum_kit_elems = document.querySelectorAll(".key");
       const audio_elems = document.querySelectorAll("audio");
 
       document.addEventListener("keydown", event => {
-        const { key } = event;
+        const { keyCode } = event;
         let pressed_key_elem;
 
+        console.log(event.keyCode);
+
         drum_kit_elems.forEach(elem => {
-          if (elem.innerText == key.toUpperCase()) {
+          if (elem.dataset.key == keyCode) {
             pressed_key_elem = elem;
           }
         });
@@ -73,12 +75,8 @@
           return;
         }
 
-        pressed_key_elem.parentElement.classList.add("playing");
-
-        console.log(pressed_key_elem.parentElement.classList);
-
-        const data_key = pressed_key_elem.parentElement.dataset.key;
-
+        pressed_key_elem.classList.add("playing");
+        const data_key = pressed_key_elem.dataset.key;
         let audio_elem;
 
         audio_elems.forEach(elem => {
@@ -89,13 +87,33 @@
 
         audio_elem.play();
 
-        setTimeout(
-          () => pressed_key_elem.parentElement.classList.remove("playing"),
-          300
-        );
+        setTimeout(() => pressed_key_elem.classList.remove("playing"), 300);
       });
 
-      // playSound()
+      drum_kit_elems.forEach(elem => {
+        elem.addEventListener("click", event => {
+          let audio_elem;
+          const keyCode = elem.dataset.key;
+          console.log(keyCode);
+          
+          if (!keyCode) {
+            return;
+          }
+
+          audio_elems.forEach(node => {
+            if (node.dataset.key == keyCode) {
+              audio_elem = node;
+            }
+          });
+    
+          elem.classList.add("playing");
+
+          audio_elem.play()
+
+          setTimeout(() => elem.classList.remove("playing"), 300);
+
+        });
+      });
     </script>
   </body>
 </html>
