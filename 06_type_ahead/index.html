@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Type Ahead 👀</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="loader-overlay">
+      <div class="loader"></div>
+    </div>
+    <form class="search-form">
+      <input type="text" class="search" placeholder="City or State" />
+      <ul class="suggestions">
+        <li>Filter for a city</li>
+        <li>or a state</li>
+      </ul>
+    </form>
+    <script>
+      const loaderOverlay = document.querySelector('.loader-overlay');
+      const searchForm = document.querySelector('.search-form');
+      const searchEl = document.querySelector('.search');
+      const suggEl = document.querySelector('.suggestions');
+      const endpoint =
+        'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
+      const cities = [];
+
+      const initialize = () => {
+        searchForm.classList.add('hidden');
+        fetch(endpoint)
+          .then(res => res.json())
+          .then(data => {
+            setTimeout(() => {
+              searchForm.classList.remove('hidden');
+              loaderOverlay.classList.add('hidden');
+            }, 300);
+            cities.push(...data);
+          });
+
+      };
+
+      const decorateQuery = (item, query) => {
+        const regex = new RegExp(query, 'gi');
+        const itemName = item.replace(
+          regex,
+          `<span class='hl'>${query}</span>`
+        );
+        return itemName;
+      };
+
+      const handleSearch = e => {
+        const query = e.target.value;
+        const regex = new RegExp(query, 'gi');
+
+        // filter cities based on search query
+        let filterItems = cities.filter(
+          ({ city, state }) => city.match(regex) || state.match(regex)
+        );
+
+        // get list of suggestions with the query text decorated
+        const suggestionsList = filterItems
+          .map(
+            item =>
+              `<li><span>${decorateQuery(
+                `${item.city}, ${item.state}`,
+                query
+              )}</span></li>`
+          )
+          .join('');
+
+        // update html
+        suggEl.innerHTML = suggestionsList;
+      };
+
+      initialize(); // start fetching
+      searchEl.addEventListener('change', handleSearch);
+      searchEl.addEventListener('keyup', handleSearch);
+    </script>
+  </body>
+</html>
