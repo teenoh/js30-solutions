@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>HTML5 Canvas</title>
+</head>
+<body>
+<canvas id="draw" width="800" height="800"></canvas>
+<script>
+  const canvasEl = document.querySelector("#draw");
+
+  canvasEl.setAttribute('width', window.innerWidth);
+  canvasEl.setAttribute('height', window.innerHeight);
+  const ctx = canvasEl.getContext('2d');
+  ctx.lineJoin = "round"
+  ctx.lineCap = "round"
+  
+  let isDrawing = false;
+  let lastX  = 0;
+  let lastY = 0
+  let hue = 0;
+  let lineWidth = 1;
+  let direction = true; // true means width increases, false means it decreases
+  
+  function draw(e){
+    ctx.beginPath()
+    ctx.strokeStyle = `hsl(${hue}, 100%,  50%)`
+    ctx.lineWidth = lineWidth
+    ctx.moveTo(lastX, lastY)
+    ctx.lineTo(e.offsetX, e.offsetY)
+    ctx.stroke()
+
+    lastX = e.offsetX;
+    lastY = e.offsetY;
+    hue = hue < 360 ?  ++hue : 0;
+
+    if (lineWidth >= 100 || lineWidth < 1){
+      // once width has increased up to 100, change direction
+      // once width has decreased down to less than 1, change direction
+      direction = !direction
+    }
+
+    if (direction){
+      lineWidth++
+    }
+    else {
+      lineWidth--
+    }
+    console.log(lineWidth)
+    
+  }
+
+
+  canvasEl.addEventListener('mousedown', (e) => {
+    isDrawing = true;
+    [lastX, lastY] = [e.offsetX, e.offsetY]
+  })
+
+  canvasEl.addEventListener('mousemove', (e) => isDrawing ? draw(e) : null)
+ 
+  canvasEl.addEventListener('mouseup', () => isDrawing=false)
+  canvasEl.addEventListener('mouseout', () => isDrawing=false)
+
+</script>
+
+<style>
+  html, body {
+    margin: 0;
+  }
+
+  * {
+    /* box-sizing: border-box; */
+  }
+
+  #draw {
+    border: 1px solid red;
+  }
+</style>
+
+</body>
+</html>
